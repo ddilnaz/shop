@@ -1,10 +1,11 @@
 package main
 
 import (
+	"encoding/json"
+	"github.com/ddilnaz/shop/pkg/abr-plus/model"
+	"github.com/gorilla/mux"
 	"net/http"
 	"strconv"
-	//"pkg\api\model\model.go"
-	"github.com/gorilla/mux"
 )
 func (app *application) createTourHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
@@ -20,7 +21,7 @@ func (app *application) createTourHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	tour := &model.ProductItem{
+	tour := &ProductItem{
 		Title:       input.Title,
 		Description: input.Description,
 		Price:       input.Price,
