@@ -1,0 +1,101 @@
+###C:\Users\Lenovo\Desktop\shop\cmd\abr_plus\abr_plus.http
+### Create Order
+POST localhost:8081/api/v1/orders
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "productItemTitle": "Eiffel Tower Tour",
+  "quantity": 2,
+  "totalPrice": 4000,
+  "orderDate": "2024-03-01",
+  "status": "Pending"
+}
+
+> {%
+    client.test("Create Order - Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+### Get Order
+GET localhost:8081/api/v1/orders/1
+
+> {%
+    client.test("Get Order - Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+### Update Order
+PUT localhost:8081/api/v1/orders/1
+Content-Type: application/json
+
+{
+  "quantity": 3,
+  "status": "Confirmed"
+}
+
+> {%
+    client.test("Update Order - Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+### Delete Order
+DELETE localhost:8081/api/v1/orders/1
+
+> {%
+    client.test("Delete Order - Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+### Create Product Item
+POST localhost:8081/api/v1/productitems
+Content-Type: application/json
+
+{
+  "title": "New Product",
+  "description": "Description of the new product",
+  "price": 500,
+  "image": "new_product_image.jpg"
+}
+
+> {%
+    client.test("Create Product Item - Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+### Get Product Item
+GET localhost:8081/api/v1/productitems/1
+
+> {%
+    client.test("Get Product Item - Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+### Update Product Item
+PUT localhost:8081/api/v1/productitems/1
+Content-Type: application/json
+
+{
+  "price": 600
+}
+
+> {%
+    client.test("Update Product Item - Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+### Delete Product Item
+DELETE localhost:8081/api/v1/productitems/1
+
+> {%
+    client.test("Delete Product Item - Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}

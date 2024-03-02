@@ -1,3 +1,4 @@
+//C:\Users\Lenovo\Desktop\shop\pkg\abr-plus\model\order_model.go
 package model
 
 import (
@@ -14,11 +15,17 @@ var orders = []Order{
 	{Id: 5, UserId: 5, ProductItemTitle: "City Sightseeing Tour", Quantity: 2, TotalPrice: 4200, OrderDate: "2024-03-05", Status: "Pending"},
 }
 
-
 type OrderModel struct {
 	DB       *sql.DB
 	InfoLog  *log.Logger
 	ErrorLog *log.Logger
+	Orders   []Order
+}
+
+func (om *OrderModel) CreateOrder(order *Order) error {
+	order.Id = len(om.Orders) + 1
+	om.Orders = append(om.Orders, *order)
+	return nil
 }
 func (om *OrderModel) GetAllOrders() ([]Order, error) {
 	return orders, nil
@@ -31,12 +38,6 @@ func (om *OrderModel) GetOrderByID(id int) (*Order, error) {
 		}
 	}
 	return nil, errors.New("order not found")
-}
-
-func (om *OrderModel) CreateOrder(order *Order) error {
-	order.Id = len(orders) + 1
-	orders = append(orders, *order)
-	return nil
 }
 
 func (om *OrderModel) UpdateOrder(order *Order) error {
