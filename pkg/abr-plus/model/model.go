@@ -8,26 +8,26 @@ import (
 )
 
 type Models struct {
-	User       UserModel
-	Order      OrderModel
-	ProductItem ProductItemModel
+	Users       UserModel
+	Orders      OrderModel
+	ProductItems ProductItemModel
 }
 
 func NewModels(db *sql.DB) Models {
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 	return Models{
-		User: UserModel{
+		Users: UserModel{
 			DB:       db,
 			InfoLog:  infoLog,
 			ErrorLog: errorLog,
 		},
-		Order: OrderModel{
+		Orders: OrderModel{
 			DB:       db,
 			InfoLog:  infoLog,
 			ErrorLog: errorLog,
 		},
-		ProductItem: ProductItemModel{
+		ProductItems: ProductItemModel{
 			DB:       db,
 			InfoLog:  infoLog,
 			ErrorLog: errorLog,

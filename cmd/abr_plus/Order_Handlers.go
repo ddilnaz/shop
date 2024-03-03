@@ -2,16 +2,17 @@ package main
 
 import (
 	"encoding/json"
-	"github.com/gorilla/mux"
-    "github.com/shop/pkg/model"
 	"net/http"
 	"strconv"
-)
 
+	//"github.com/ddilnaz/shop/pkg/abr-plus/model"
+	"github.com/ddilnaz/shop/pkg/abr-plus/model"
+	"github.com/gorilla/mux"
+	//"github.com/shop/pkg/model"
+)
 func (app *application) respondWithError(w http.ResponseWriter, code int, message string) {
 	app.respondWithJSON(w, code, map[string]string{"error": message})
 }
-
 func (app *application) respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
 	response, err := json.Marshal(payload)
 
@@ -27,12 +28,8 @@ func (app *application) respondWithJSON(w http.ResponseWriter, code int, payload
 
 func (app *application) createOrderHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
-		UserID           int    `json:"user_id"`
-		ProductItemTitle string `json:"product_item_title"`
-		Quantity         int    `json:"quantity"`
-		TotalPrice       int    `json:"total_price"`
-		OrderDate        string `json:"order_date"`
-		Status           string `json:"status"`
+		Title       string `json:"title"`
+		Description  string `json:"description"`
 	}
 
 	err := app.readJSON(w, r, &input)
@@ -42,13 +39,13 @@ func (app *application) createOrderHandler(w http.ResponseWriter, r *http.Reques
 	}
 
 	order := &model.Order{
-		// Здесь нужно сконструировать объект заказа в соответствии с вашей логикой.
-		// Пример: Id: 0, UserID: input.UserID, ProductItemTitle: input.ProductItemTitle, и так далее.
+		Title:      input.Title,
+		Description: input.Description,
 	}
 
-	err = app.models.Order.CreateOrder(order)
+	err = app.models.Orders.CreateOrder(order)
 	if err != nil {
-		app.respondWithError(w, http.StatusInternalServerError, "Failed to create order")
+		app.respondWithError(w, http.StatusInternalServerError, "500 Internal Server Error")
 		return
 	}
 
@@ -65,14 +62,16 @@ func (app *application) getOrderHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	order, err := app.models.Order.GetOrderById(id)
+	menu, err := app.models.Orders.GetOrderById(id)
 	if err != nil {
-		app.respondWithError(w, http.StatusNotFound, "Order not found")
+		app.respondWithError(w, http.StatusNotFound, "404 Not Found")
 		return
 	}
 
-	app.respondWithJSON(w, http.StatusOK, order)
+	app.respondWithJSON(w, http.StatusOK, menu)
 }
+
+
 func (app *application) updateOrderHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	param := vars["orderId"]
@@ -83,19 +82,15 @@ func (app *application) updateOrderHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	order, err := app.models.Order.GetOrderById(id)
+	order, err := app.models.Orders.GetOrderById(id)
 	if err != nil {
-		app.respondWithError(w, http.StatusNotFound, "Order not found")
+		app.respondWithError(w, http.StatusNotFound, "404 Not Found")
 		return
 	}
 
 	var input struct {
-		UserID           *int    `json:"user_id"`
-		ProductItemTitle *string `json:"product_item_title"`
-		Quantity         *int    `json:"quantity"`
-		TotalPrice       *int    `json:"total_price"`
-		OrderDate        *string `json:"order_date"`
-		Status           *string `json:"status"`
+		Title          *string `json:"title"`
+		Description    *string `json:"description"`
 	}
 
 	err = app.readJSON(w, r, &input)
@@ -104,37 +99,22 @@ func (app *application) updateOrderHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	if input.UserID != nil {
-		order.UserID = *input.UserID
+	if input.Title != nil {
+		order.Title = *input.Title
 	}
 
-	if input.ProductItemTitle != nil {
-		order.ProductItemTitle = *input.ProductItemTitle
+	if input.Description != nil {
+		order.Description = *input.Description
 	}
 
-	if input.Quantity != nil {
-		order.Quantity = *input.Quantity
-	}
-
-	if input.TotalPrice != nil {
-		order.TotalPrice = *input.TotalPrice
-	}
-
-	if input.OrderDate != nil {
-		order.OrderDate = *input.OrderDate
-	}
-
-	if input.Status != nil {
-		order.Status = *input.Status
-	}
-
-	err = app.models.Order.UpdateOrder(order)
+	
+	err = app.models.Orders.UpdateOrder(order)
 	if err != nil {
-		app.respondWithError(w, http.StatusInternalServerError, "Failed to update order")
+		app.respondWithError(w, http.StatusInternalServerError, "500 Internal Server Error")
 		return
 	}
 
-	app.respondWithJSON(w, http.StatusOK, order)
+	app.respondWithJSON(w, http.StatusOK,order)
 }
 
 func (app *application) deleteOrderHandler(w http.ResponseWriter, r *http.Request) {
@@ -147,11 +127,23 @@ func (app *application) deleteOrderHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	err = app.models.Order.DeleteOrder(id)
+	err = app.models.Orders.DeleteOrder(id)
 	if err != nil {
-		app.respondWithError(w, http.StatusInternalServerError, "Failed to delete order")
+		app.respondWithError(w, http.StatusInternalServerError, "500 Internal Server Error")
 		return
 	}
 
 	app.respondWithJSON(w, http.StatusOK, map[string]string{"result": "success"})
+}
+
+func (app *application) readJSON(w http.ResponseWriter, r *http.Request, dst interface{}) error {
+	dec := json.NewDecoder(r.Body)
+	dec.DisallowUnknownFields()
+
+	err := dec.Decode(dst)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

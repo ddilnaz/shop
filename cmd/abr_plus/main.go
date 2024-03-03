@@ -4,7 +4,6 @@ package main
 import (
 	"database/sql"
 	"flag"
-	"fmt"
 	"log"
 	"net/http"
 
@@ -45,26 +44,25 @@ func main() {
 		models: model.NewModels(db),
 	}
 
-	// Routes
-	r := mux.NewRouter()
-	r.HandleFunc("/api/v1/orders", app.createOrderHandler).Methods("POST")
-	//r.HandleFunc("/api/v1/productitems", app.createProductItemHandler).Methods("POST")  // Assuming a handler for creating product items
-	r.HandleFunc("/api/v1/orders/{id:[0-9]+}", app.getTourHandler).Methods("GET")
-	//r.HandleFunc("/api/v1/productitems/{id:[0-9]+}", app.getProductItemHandler).Methods("GET")  // Assuming a handler for getting product items
-	// Add other routes as needed
-
-	addr := fmt.Sprintf(":%s", app.config.port)
-	fmt.Printf("Server is listening on %s...\n", addr)
-	err = http.ListenAndServe(addr, r)
-	if err != nil {
-		log.Fatal(err)
-	}
+	app.run()
 }
-const insertOrderQuery = `
-INSERT INTO orders (user_id, product_item_title, quantity, total_price, order_date, status)
-VALUES ($1, $2, $3, $4, $5, $6)
-RETURNING id
-`
+
+func (app *application) run() {
+	r := mux.NewRouter()
+
+	v1 := r.PathPrefix("/api/v1").Subrouter()
+
+	// Menu Singleton
+	
+	v1.HandleFunc("/api/v1/orders", app.createOrderHandler).Methods("POST")
+	v1.HandleFunc("/api/v1/orders/{id:[0-9]+}", app.updateOrderHandler).Methods("PUT")  // Assuming a handler for creating product items
+	v1.HandleFunc("/api/v1/orders/{id:[0-9]+}", app.getOrderHandler).Methods("GET")
+	v1.HandleFunc("/api/v1/orders/{id:[0-9]+}", app.deleteOrderHandler).Methods("DELETE") 
+
+	log.Printf("Starting server on %s\n", app.config.port)
+	err := http.ListenAndServe(app.config.port, r)
+	log.Fatal(err)
+}
 
 func openDB(cfg config) (*sql.DB, error) {
 	db, err := sql.Open("postgres", cfg.db.dsn)

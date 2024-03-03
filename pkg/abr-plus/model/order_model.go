@@ -40,10 +40,10 @@ func (m *OrderModel) CreateOrder(order *Order) error {
 
 
 func (m OrderModel) GetOrderById(id int) (*Order, error) {
-	// Retrieve a specific menu item based on its ID.
+	// Retrieve a specific order item based on its ID.
 	query := `
 		SELECT id, created_at, updated_at, title, description, status
-		FROM menu
+		FROM order
 		WHERE id = $1
 		`
 	var order Order
@@ -72,9 +72,9 @@ func (m *OrderModel) UpdateOrder(order *Order) error {
 }
 
 func (m OrderModel) DeleteOrder(id int) error {
-	// Delete a specific menu item from the database.
+	// Delete a specific order item from the database.
 	query := `
-		DELETE FROM menu
+		DELETE FROM order
 		WHERE id = $1
 		`
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
