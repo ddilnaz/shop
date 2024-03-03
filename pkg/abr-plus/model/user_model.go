@@ -1,17 +1,25 @@
-//pkg\abr-plus\model\user_model.go
+//C:\Users\Lenovo\Desktop\shop\pkg\abr-plus\model\user_model.go
 package model
-
 import (
 	"database/sql"
-	"errors"
 	"log"
+	"context"
+	"time"
 )
+type User struct {
+	Id        int `json:"id"`
+	Name      string `json:"name"`
+	Email     string `json:"email"`
+	CreatedAt string `json:"createdAt"`
+	UpdatedAt string `json:"updatedAt"`
+}
+
 var users = []User{
-	{Id: 1, Name: "Zeinolla Dilnaz", Username: "zeinolla_d", Password: "password123"},
-	{Id: 2, Name: "Zhumanova Zhanel", Username: "ahanel_zh", Password: "pass456"},
-	{Id: 3, Name: "Ali John", Username: "ali_zh", Password: "secret123"},
-	{Id: 4, Name: "Kami White", Username: "kami_w", Password: "exam_pass"},
-	{Id: 5, Name: "Airat Green", Username: "airat_g", Password: "green"},
+	{Id: 1, Name: "Zeinolla Dilnaz", Email: "zeinolla_d@gmail.com"},
+	{Id: 2, Name: "Zhumanova Zhanel", Email: "ahanel_zh"},
+	{Id: 3, Name: "Ali John", Email: "ali_zh"},
+	{Id: 4, Name: "Kami White", Email: "kami_w"},
+	{Id: 5, Name: "Airat Green", Email: "airat_g"},
 }
 
 type UserModel struct{
@@ -21,43 +29,68 @@ type UserModel struct{
 }
 
 
-func (um *UserModel) GetAllUsers() ([]User, error) {
-	return users, nil
+func GetAllUsers() []User {
+	return users
 }
 
-func (um *UserModel) GetUserByID(id int) (*User, error) {
-	for _, user := range users {
-		if user.Id == id {
-			return &user, nil
-		}
+
+func (m UserModel) GetUserById(id int) (*User, error) {
+	// Retrieve a specific menu item based on its ID.
+	query := `
+		SELECT id, created_at, updated_at, name , email
+		FROM users
+		WHERE id = $1
+		`
+	var user User
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	row := m.DB.QueryRowContext(ctx, query, id)
+	err := row.Scan(&user.Id, &user.CreatedAt, &user.UpdatedAt, &user.Name, &user.Email)
+	if err != nil {
+		return nil, err
 	}
-	return nil, errors.New("user not found")
+	return &user, nil
 }
 
-func (um *UserModel) CreateUser(user *User) error {
-	// Simulating auto-increment ID
-	user.Id = len(users) + 1
-	users = append(users, *user)
-	return nil
+func (m UserModel) CreateUser(users* User) error {
+	// Insert a new menu item into the database.
+	query := `
+	INSERT INTO users (name, email) 
+	VALUES ($1, $2) 
+	RETURNING id`
+
+	args := []interface{}{users.Name, users.Email, users.Id}
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	return m.DB.QueryRowContext(ctx, query, args...).Scan(&users.Id)
+}
+func (m UserModel) UpdateUser(user *User) error {
+	// Update a specific menu item in the database.
+	query := `
+	UPDATE users
+	SET name = $1, email = $2, created_at = $3
+	WHERE id = $4
+	RETURNING updated_at`
+
+	args := []interface{}{user.Name, user.Email, user.Id}
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	return m.DB.QueryRowContext(ctx, query, args...).Scan(&user.UpdatedAt)
 }
 
-func (um *UserModel) UpdateUser(user *User) error {
-	for i, u := range users {
-		if u.Id == user.Id {
-			users[i] = *user
-			return nil
-		}
-	}
-	return errors.New("user not found")
-}
 
-func (um *UserModel) DeleteUser(id int) error {
-	for i, user := range users {
-		if user.Id == id {
-			// Remove user from slice
-			users = append(users[:i], users[i+1:]...)
-			return nil
-		}
-	}
-	return errors.New("user not found")
+func (m UserModel) DeleteUser(id int) error {
+	// Delete a specific menu item from the database.
+	query := `
+		DELETE FROM users
+		WHERE id = $1
+		`
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	_, err := m.DB.ExecContext(ctx, query, id)
+	return err
 }

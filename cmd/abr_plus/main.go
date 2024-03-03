@@ -1,13 +1,16 @@
+//C:\Users\Lenovo\Desktop\shop\cmd\abr_plus\main.go
 package main
 
 import (
 	"database/sql"
 	"flag"
 	"fmt"
-	"github.com/ddilnaz/shop/pkg/abr-plus/model"
-	_ "github.com/lib/pq"
 	"log"
 	"net/http"
+
+	"github.com/ddilnaz/shop/pkg/abr-plus/model"
+	"github.com/gorilla/mux"
+	_ "github.com/lib/pq"
 )
 
 type config struct {
@@ -42,15 +45,21 @@ func main() {
 		models: model.NewModels(db),
 	}
 
-	// Use addr in ListenAndServe function
+	// Routes
+	r := mux.NewRouter()
+	r.HandleFunc("/api/v1/orders", app.createOrderHandler).Methods("POST")
+	//r.HandleFunc("/api/v1/productitems", app.createProductItemHandler).Methods("POST")  // Assuming a handler for creating product items
+	r.HandleFunc("/api/v1/orders/{id:[0-9]+}", app.getTourHandler).Methods("GET")
+	//r.HandleFunc("/api/v1/productitems/{id:[0-9]+}", app.getProductItemHandler).Methods("GET")  // Assuming a handler for getting product items
+	// Add other routes as needed
+
 	addr := fmt.Sprintf(":%s", app.config.port)
 	fmt.Printf("Server is listening on %s...\n", addr)
-	err = http.ListenAndServe(addr, nil)
+	err = http.ListenAndServe(addr, r)
 	if err != nil {
 		log.Fatal(err)
 	}
 }
-
 const insertOrderQuery = `
 INSERT INTO orders (user_id, product_item_title, quantity, total_price, order_date, status)
 VALUES ($1, $2, $3, $4, $5, $6)

@@ -3,60 +3,83 @@ package model
 
 import (
 	"database/sql"
-	"errors"
 	"log"
+	"time"
+	"context"
 )
 
-var orders = []Order{
-	{Id: 1, UserId: 1, ProductItemTitle: "Eiffel Tower Tour", Quantity: 2, TotalPrice: 4000, OrderDate: "2024-03-01", Status: "Pending"},
-	{Id: 2, UserId: 2, ProductItemTitle: "Historical Sites Pass", Quantity: 1, TotalPrice: 1800, OrderDate: "2024-03-02", Status: "Confirmed"},
-	{Id: 3, UserId: 3, ProductItemTitle: "Island Retreat Package", Quantity: 3, TotalPrice: 4500, OrderDate: "2024-03-03", Status: "Shipped"},
-	{Id: 4, UserId: 4, ProductItemTitle: "Mountain Trekking Adventure", Quantity: 1, TotalPrice: 3000, OrderDate: "2024-03-04", Status: "Delivered"},
-	{Id: 5, UserId: 5, ProductItemTitle: "City Sightseeing Tour", Quantity: 2, TotalPrice: 4200, OrderDate: "2024-03-05", Status: "Pending"},
+type Order struct {
+	Id             string `json:"id"`
+	CreatedAt      string `json:"createdAt"`
+	UpdatedAt      string `json:"updatedAt"`
+	Title          string `json:"title"`
+	Description    string `json:"description"`
+	Status         string `json:"status" db:"status"`
 }
 
 type OrderModel struct {
 	DB       *sql.DB
 	InfoLog  *log.Logger
 	ErrorLog *log.Logger
-	Orders   []Order
 }
 
-func (om *OrderModel) CreateOrder(order *Order) error {
-	order.Id = len(om.Orders) + 1
-	om.Orders = append(om.Orders, *order)
-	return nil
-}
-func (om *OrderModel) GetAllOrders() ([]Order, error) {
-	return orders, nil
-}
+func (m *OrderModel) CreateOrder(order *Order) error {
+	query := `
+		INSERT INTO "order" (id, title, description, status)
+		VALUES ($1, $2, $3, $4)
+		RETURNING id, status, created_at, updated_at
+	`
+		
+	args := []interface{}{order.Id, order.Title, order.Description}
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
 
-func (om *OrderModel) GetOrderByID(id int) (*Order, error) {
-	for _, o := range orders {
-		if o.Id == id {
-			return &o, nil
-		}
+	return m.DB.QueryRowContext(ctx, query, args...).Scan(&order.Status, &order.CreatedAt, &order.UpdatedAt)
+}
+	
+
+
+func (m OrderModel) GetOrderById(id int) (*Order, error) {
+	// Retrieve a specific menu item based on its ID.
+	query := `
+		SELECT id, created_at, updated_at, title, description, status
+		FROM menu
+		WHERE id = $1
+		`
+	var order Order
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	row := m.DB.QueryRowContext(ctx, query, id)
+	err := row.Scan(&order.Id, &order.CreatedAt, &order.UpdatedAt, &order.Title, &order.Description, &order.Status)
+	if err != nil {
+		return nil, err
 	}
-	return nil, errors.New("order not found")
+	return &order, nil
+}
+func (m *OrderModel) UpdateOrder(order *Order) error {
+	query := `
+		UPDATE "order"
+		SET title = $1, description = $2, status = $3
+		WHERE id = $4
+		RETURNING updated_at
+	`
+	args := []interface{}{order.Title, order.Description, order.Status, order.Id}
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	return m.DB.QueryRowContext(ctx, query, args...).Scan(&order.UpdatedAt)
 }
 
-func (om *OrderModel) UpdateOrder(order *Order) error {
-	for i, o := range orders {
-		if o.Id == order.Id {
-			orders[i] = *order
-			return nil
-		}
-	}
-	return errors.New("order not found")
-}
+func (m OrderModel) DeleteOrder(id int) error {
+	// Delete a specific menu item from the database.
+	query := `
+		DELETE FROM menu
+		WHERE id = $1
+		`
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
 
-func (om *OrderModel) DeleteOrder(id int) error {
-	for i, order := range orders {
-		if order.Id == id {
-			// Remove order from slice
-			orders = append(orders[:i], orders[i+1:]...)
-			return nil
-		}
-	}
-	return errors.New("order not found")
+	_, err := m.DB.ExecContext(ctx, query, id)
+	return err
 }
