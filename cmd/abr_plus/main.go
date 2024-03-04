@@ -61,6 +61,7 @@ func (app *application) run() {
 
 	log.Printf("Starting server on %s\n", app.config.port)
 	err := http.ListenAndServe(app.config.port, r)
+	log.Print("qwert")
 	log.Fatal(err)
 }
 

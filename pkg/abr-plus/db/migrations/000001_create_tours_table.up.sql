@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS product_item (
     updated_at  timestamp(0) with time zone NOT NULL DEFAULT NOW()
 );
 
-CREATE TABLE IF NOT EXISTS "order" (
+CREATE TABLE IF NOT EXISTS "orderr" (
     id          bigserial PRIMARY KEY,
     user_id     bigserial REFERENCES "user" (id),
     created_at  timestamp(0) with time zone NOT NULL DEFAULT NOW(),

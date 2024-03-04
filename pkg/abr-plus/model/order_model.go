@@ -8,7 +8,7 @@ import (
 	"context"
 )
 
-type Order struct {
+type orderr struct {
 	Id             int `json:"id"`
 	CreatedAt      string `json:"createdAt"`
 	UpdatedAt      string `json:"updatedAt"`
@@ -17,43 +17,43 @@ type Order struct {
 	Status         string `json:"status" db:"status"`
 }
 
-var orders = []Order{
-	{Id: 1, Title: "Eiffel Tower Tour", Status: "Pending"},
-	{Id: 2, Title: "Historical Sites Pass",  Status: "Confirmed"},
-	{Id: 3, Title: "Island Retreat Package",Status: "Shipped"},
-	{Id: 4, Title: "Mountain Trekking Adventure",  Status: "Delivered"},
-	{Id: 5, Title: "City Sightseeing Tour",  Status: "Pending"},
-}
+// var orders = []orderr{
+// 	{Id: 1, Title: "Eiffel Tower Tour", Status: "Pending"},
+// 	{Id: 2, Title: "Historical Sites Pass",  Status: "Confirmed"},
+// 	{Id: 3, Title: "Island Retreat Package",Status: "Shipped"},
+// 	{Id: 4, Title: "Mountain Trekking Adventure",  Status: "Delivered"},
+// 	{Id: 5, Title: "City Sightseeing Tour",  Status: "Pending"},
+// }
 type OrderModel struct {
 	DB       *sql.DB
 	InfoLog  *log.Logger
 	ErrorLog *log.Logger
 }
 
-func (m *OrderModel) CreateOrder(order *Order) error {
+func (m *OrderModel) CreateOrder(order *orderr) error {
 	query := `
-		INSERT INTO order (id, title, description, status)
-		VALUES ($1, $2, $3, $4)
-		RETURNING id, status, created_at, updated_at
+		INSERT INTO orderr (title, description)
+		VALUES ($1, $2)
+		RETURNING  id ,createdAt, updatedAt
 	`
 		
-	args := []interface{}{order.Id, order.Title, order.Description}
+	args := []interface{}{ order.Title, order.Description }
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	return m.DB.QueryRowContext(ctx, query, args...).Scan(&order.Status, &order.CreatedAt, &order.UpdatedAt)
+	return m.DB.QueryRowContext(ctx, query, args...).Scan(&order.Id, &order.CreatedAt, &order.UpdatedAt)
 }
 	
 
 
-func (m OrderModel) GetOrderById(id int) (*Order, error) {
+func (m OrderModel) GetOrderById(id int) (*orderr, error) {
 	// Retrieve a specific order item based on its ID.
 	query := `
 		SELECT id, created_at, updated_at, title, description, status
-		FROM order
+		FROM orderr
 		WHERE id = $1
 		`
-	var order Order
+	var order orderr
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -64,9 +64,9 @@ func (m OrderModel) GetOrderById(id int) (*Order, error) {
 	}
 	return &order, nil
 }
-func (m *OrderModel) UpdateOrder(order *Order) error {
+func (m *OrderModel) UpdateOrder(order *orderr) error {
 	query := `
-		UPDATE "order"
+		UPDATE "orderr"
 		SET title = $1, description = $2, status = $3
 		WHERE id = $4
 		RETURNING updated_at
@@ -81,7 +81,7 @@ func (m *OrderModel) UpdateOrder(order *Order) error {
 func (m OrderModel) DeleteOrder(id int) error {
 	// Delete a specific order item from the database.
 	query := `
-		DELETE FROM order
+		DELETE FROM orderr
 		WHERE id = $1
 		`
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
