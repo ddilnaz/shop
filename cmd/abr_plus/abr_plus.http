@@ -3,12 +3,17 @@ POST http://localhost:8081/api/v1/orders
 Content-Type: application/json
 
 {
-    "title": "New Order",
-    "description": "Description of the new order"
+    "title": "Eiffel Tower Tour",
+    "description": "Guided tour of the iconic landmark"
 }
 
 # Get Order by ID
 GET http://localhost:8081/api/v1/orders/1
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
 
 # Update Order by ID
 PUT http://localhost:8081/api/v1/orders/1

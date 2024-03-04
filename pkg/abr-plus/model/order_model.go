@@ -9,7 +9,7 @@ import (
 )
 
 type Order struct {
-	Id             string `json:"id"`
+	Id             int `json:"id"`
 	CreatedAt      string `json:"createdAt"`
 	UpdatedAt      string `json:"updatedAt"`
 	Title          string `json:"title"`
@@ -17,6 +17,13 @@ type Order struct {
 	Status         string `json:"status" db:"status"`
 }
 
+var orders = []Order{
+	{Id: 1, Title: "Eiffel Tower Tour", Status: "Pending"},
+	{Id: 2, Title: "Historical Sites Pass",  Status: "Confirmed"},
+	{Id: 3, Title: "Island Retreat Package",Status: "Shipped"},
+	{Id: 4, Title: "Mountain Trekking Adventure",  Status: "Delivered"},
+	{Id: 5, Title: "City Sightseeing Tour",  Status: "Pending"},
+}
 type OrderModel struct {
 	DB       *sql.DB
 	InfoLog  *log.Logger
@@ -25,7 +32,7 @@ type OrderModel struct {
 
 func (m *OrderModel) CreateOrder(order *Order) error {
 	query := `
-		INSERT INTO "order" (id, title, description, status)
+		INSERT INTO order (id, title, description, status)
 		VALUES ($1, $2, $3, $4)
 		RETURNING id, status, created_at, updated_at
 	`

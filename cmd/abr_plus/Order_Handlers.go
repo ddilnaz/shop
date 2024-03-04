@@ -1,3 +1,4 @@
+// cmd\abr_plus\Order_Handlers.go
 package main
 
 import (
@@ -5,18 +6,21 @@ import (
 	"net/http"
 	"strconv"
 
+	//"errors"
 	//"github.com/ddilnaz/shop/pkg/abr-plus/model"
 	"github.com/ddilnaz/shop/pkg/abr-plus/model"
 	"github.com/gorilla/mux"
 	//"github.com/shop/pkg/model"
 )
 func (app *application) respondWithError(w http.ResponseWriter, code int, message string) {
-	app.respondWithJSON(w, code, map[string]string{"error": message})
+    app.respondWithJSON(w, code, map[string]string{"error": message})
 }
+
 func (app *application) respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
 	response, err := json.Marshal(payload)
 
 	if err != nil {
+		
 		app.respondWithError(w, http.StatusInternalServerError, "500 Internal Server Error")
 		return
 	}
@@ -48,8 +52,6 @@ func (app *application) createOrderHandler(w http.ResponseWriter, r *http.Reques
 		app.respondWithError(w, http.StatusInternalServerError, "500 Internal Server Error")
 		return
 	}
-
-	app.respondWithJSON(w, http.StatusCreated, order)
 }
 
 func (app *application) getOrderHandler(w http.ResponseWriter, r *http.Request) {
@@ -135,14 +137,12 @@ func (app *application) deleteOrderHandler(w http.ResponseWriter, r *http.Reques
 
     app.respondWithJSON(w, http.StatusOK, map[string]string{"result": "success"})
 }
-func (app *application) readJSON(w http.ResponseWriter, r *http.Request, dst interface{}) error {
-	dec := json.NewDecoder(r.Body)
-	dec.DisallowUnknownFields()
-
-	err := dec.Decode(dst)
-	if err != nil {
-		return err
-	}
-
-	return nil
+func (app *application) readJSON(w http.ResponseWriter, r *http.Request, data interface{}) error {
+    decoder := json.NewDecoder(r.Body)
+    err := decoder.Decode(data)
+    if err != nil {
+        app.respondWithError(w, http.StatusBadRequest, "Invalid JSON payload")
+        return err
+    }
+    return nil
 }
