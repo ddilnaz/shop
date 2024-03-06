@@ -8,9 +8,9 @@ import (
 	"strconv"
 
 	//"errors"
-
+	
 	"github.com/gorilla/mux"
-	"github.com/shop/pkg/model"
+	"github.com/ddilnaz/shop/pkg/abr-plus/model"
 )
 
 func (app *application) respondWithError(w http.ResponseWriter, code int, message string) {
@@ -35,6 +35,7 @@ func (app *application) createOrderHandler(w http.ResponseWriter, r *http.Reques
 	var input struct {
 		Title       string `json:"title"`
 		Description string `json:"description"`
+		Status      string `json:"status"`
 	}
 
 	err := app.readJSON(w, r, &input)
@@ -46,15 +47,18 @@ func (app *application) createOrderHandler(w http.ResponseWriter, r *http.Reques
 	order := &model.Order{
 		Title:       input.Title,
 		Description: input.Description,
+		Status:      input.Status,
 	}
-
+	if order.Status == "" {
+		order.Status = "Pending"  
+	}
 	err = app.models.Orders.CreateOrder(order)
 	if err != nil {
 		log.Printf("Error creating order: %s\n", err)
 		app.respondWithError(w, http.StatusInternalServerError, "500 Internal Server Error")
 		return
 	}
-
+	
 	app.respondWithJSON(w, http.StatusCreated, order)
 }
 

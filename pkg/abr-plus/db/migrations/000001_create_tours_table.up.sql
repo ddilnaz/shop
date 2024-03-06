@@ -15,11 +15,13 @@ CREATE TABLE IF NOT EXISTS "order" (
     user_id     bigserial REFERENCES "user" (id),
     created_at  timestamp(0) with time zone NOT NULL DEFAULT NOW(),
     updated_at  timestamp(0) with time zone NOT NULL DEFAULT NOW(),
-    status      text NOT NULL,
+    title       text NOT NULL,  
+    description text,           
+    status      text NOT NULL DEFAULT 'Pending',
     FOREIGN KEY (user_id) REFERENCES "user" (id)
 );
 
-CREATE TABLE IF NOT EXISTS "user" (
+CREATE TABLE IF NOT EXISTS "users" (
     id          bigserial PRIMARY KEY,
     name        text NOT NULL,
     email       text NOT NULL,

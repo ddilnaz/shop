@@ -5,6 +5,7 @@ import (
 	"log"
 	"context"
 	"time"
+	
 )
 type User struct {
 	Id        int `json:"id"`
@@ -53,19 +54,20 @@ func (m UserModel) GetUserById(id int) (*User, error) {
 	return &user, nil
 }
 
-func (m UserModel) CreateUser(users* User) error {
-	// Insert a new menu item into the database.
+func (m UserModel) CreateUser(user *User) error {
+	// Insert a new user into the database.
 	query := `
-	INSERT INTO users (name, email) 
-	VALUES ($1, $2) 
-	RETURNING id`
+		INSERT INTO users (name, email) 
+		VALUES ($1, $2) 
+		RETURNING id, created_at`
 
-	args := []interface{}{users.Name, users.Email, users.Id}
+	args := []interface{}{user.Name, user.Email}
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	return m.DB.QueryRowContext(ctx, query, args...).Scan(&users.Id)
+	return m.DB.QueryRowContext(ctx, query, args...).Scan(&user.Id, &user.CreatedAt)
 }
+
 func (m UserModel) UpdateUser(user *User) error {
 	// Update a specific menu item in the database.
 	query := `

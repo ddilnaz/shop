@@ -53,11 +53,15 @@ func (app *application) run() {
 	v1 := r.PathPrefix("/api/v1").Subrouter()
 
 	// Menu Singleton
+	v1.HandleFunc("/user/{user_id:[0-9]+}", app.getUsersHandler).Methods("GET")
+	v1.HandleFunc("/user/{user_id:[0-9]+", app.deleteUserHandler).Methods("DELETE")
 	
+	v1.HandleFunc("/user",app.CreateUserHandler).Methods("POST")
+	v1.HandleFunc("/orders", app.createOrderHandler).Methods("POST")
 	r.HandleFunc("/orders/{id:[0-9]+}", app.updateOrderHandler).Methods("PUT")
 	v1.HandleFunc("/orders/{id:[0-9]+}", app.getOrderHandler).Methods("GET")
 	v1.HandleFunc("/orders/{id:[0-9]+}", app.deleteOrderHandler).Methods("DELETE") 
-	v1.HandleFunc("/orders", app.createOrderHandler).Methods("POST")
+	//v1.HandleFunc("/orders", app.createOrderHandler).Methods("POST")
 
 	log.Printf("Starting server on %s\n", app.config.port)
 	err := http.ListenAndServe(app.config.port, r)
