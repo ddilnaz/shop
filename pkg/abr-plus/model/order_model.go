@@ -8,7 +8,7 @@ import (
 	"context"
 )
 
-type orderr struct {
+type Order struct {
 	Id             int `json:"id"`
 	CreatedAt      string `json:"createdAt"`
 	UpdatedAt      string `json:"updatedAt"`
@@ -30,11 +30,12 @@ type OrderModel struct {
 	ErrorLog *log.Logger
 }
 
-func (m *OrderModel) CreateOrder(order *orderr) error {
+func (m *OrderModel) CreateOrder(order *Order) error {
 	query := `
-		INSERT INTO orderr (title, description)
-		VALUES ($1, $2)
-		RETURNING  id ,createdAt, updatedAt
+		INSERT INTO "order" (title, description) 
+		VALUES ($1, $2) 
+		RETURNING id, created_at, updated_at
+
 	`
 		
 	args := []interface{}{ order.Title, order.Description }
@@ -46,14 +47,15 @@ func (m *OrderModel) CreateOrder(order *orderr) error {
 	
 
 
-func (m OrderModel) GetOrderById(id int) (*orderr, error) {
+func (m OrderModel) GetOrderById(id int) (*Order, error) {
 	// Retrieve a specific order item based on its ID.
 	query := `
-		SELECT id, created_at, updated_at, title, description, status
-		FROM orderr
+		SELECT id, created_at, updated_at, title, description, status 
+		FROM "order" 
 		WHERE id = $1
+
 		`
-	var order orderr
+	var order Order
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -64,25 +66,25 @@ func (m OrderModel) GetOrderById(id int) (*orderr, error) {
 	}
 	return &order, nil
 }
-func (m *OrderModel) UpdateOrder(order *orderr) error {
+func (m *OrderModel) UpdateOrder(order *Order) error {
 	query := `
-		UPDATE "orderr"
-		SET title = $1, description = $2, status = $3
+		UPDATE "order" SET title = $1, description = $2, status = $3
 		WHERE id = $4
 		RETURNING updated_at
+
 	`
 	args := []interface{}{order.Title, order.Description, order.Status, order.Id}
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
-
+	
 	return m.DB.QueryRowContext(ctx, query, args...).Scan(&order.UpdatedAt)
 }
+
 
 func (m OrderModel) DeleteOrder(id int) error {
 	// Delete a specific order item from the database.
 	query := `
-		DELETE FROM orderr
-		WHERE id = $1
+		DELETE FROM "order" WHERE id = $1
 		`
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()

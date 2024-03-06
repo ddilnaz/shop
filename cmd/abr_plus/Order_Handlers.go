@@ -8,10 +8,9 @@ import (
 	"strconv"
 
 	//"errors"
-	"github.com/ddilnaz/shop/pkg/abr-plus/model"
 
 	"github.com/gorilla/mux"
-	//"github.com/shop/pkg/model"
+	"github.com/shop/pkg/model"
 )
 
 func (app *application) respondWithError(w http.ResponseWriter, code int, message string) {
@@ -44,11 +43,10 @@ func (app *application) createOrderHandler(w http.ResponseWriter, r *http.Reques
 		app.respondWithError(w, http.StatusBadRequest, "Invalid request payload")
 		return
 	}
-	order := &model.orderr{
-		Title:          input.Title,
-		Description:    input.Description,
+	order := &model.Order{
+		Title:       input.Title,
+		Description: input.Description,
 	}
-
 
 	err = app.models.Orders.CreateOrder(order)
 	if err != nil {
