@@ -60,54 +60,49 @@ func (app *application) getUsersHandler(w http.ResponseWriter, r *http.Request) 
 	app.respondWithJSON(w, http.StatusOK, menu)
 }
 
-// func (app *application) updateUserHandler(w http.ResponseWriter, r *http.Request) {
-// 	vars := mux.Vars(r)
-// 	param := vars["user_id"]
+func (app *application) updateUserHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	param := vars["user_id"]
 
-// 	id, err := strconv.Atoi(param)
-// 	if err != nil || id < 1 {
-// 		app.respondWithError(w, http.StatusBadRequest, "Invalid menu ID")
-// 		return
-// 	}
+	id, err := strconv.Atoi(param)
+	if err != nil || id < 1 {
+		app.respondWithError(w, http.StatusBadRequest, "Invalid menu ID")
+		return
+	}
 
-// 	user, err := app.models.Users.GetUserById(id)
-// 	if err != nil {
-// 		app.respondWithError(w, http.StatusNotFound, "404 Not Found")
-// 		return
-// 	}
+	user, err := app.models.Users.GetUserById(id)
+	if err != nil {
+		app.respondWithError(w, http.StatusNotFound, "404 Not Found")
+		return
+	}
 
-// 	var input struct {
-// 		ID    int    `json:"id"`
-// 		Name          string `json:"name"`
-// 		Email    string `json:"email"`
-// 	}
+	var input struct {
+		Name          string `json:"name"`
+		Email    string `json:"email"`
+	}
 	
-// 	err = app.readJSON(w, r, &input)
-// 	if err != nil {
-// 		app.respondWithError(w, http.StatusBadRequest, "Invalid request payload")
-// 		return
-// 	}
+	err = app.readJSON(w, r, &input)
+	if err != nil {
+		app.respondWithError(w, http.StatusBadRequest, "Invalid request payload")
+		return
+	}
+	if input.Name != "" {
+		user.Name = input.Name
+	}
+	
+	if input.Email != "" {
+		user.Email = input.Email
+	}
 
-// 	if input.Id != nil {
-// 		user.ID = *&input.ID
-// 	}
-
-// 	if input.Name != nil {
-// 		user.Name = *input.Name
-// 	}
-
-// 	if input.Email != nil {
-// 		user.Email = *input.Email
-// 	}
-
-// 	err = app.models.Users.UpdateUser(user)
-// 	if err != nil {
-// 		app.respondWithError(w, http.StatusInternalServerError, "500 Internal Server Error")
-// 		return
-// 	}
-
-// 	app.respondWithJSON(w, http.StatusOK, user)
-// }
+	err = app.models.Users.UpdateUser(user)
+	if err != nil {
+		log.Println("Error updating user:", err)
+		app.respondWithError(w, http.StatusInternalServerError, "500 Internal Server Error")
+		return
+	}
+	
+	app.respondWithJSON(w, http.StatusOK, user)
+}
 
 func (app *application) deleteUserHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)

@@ -21,6 +21,21 @@ CREATE TABLE IF NOT EXISTS "order" (
     FOREIGN KEY (user_id) REFERENCES "user" (id)
 );
 
+DO $$ 
+BEGIN
+   IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'order_user_id_fkey') THEN
+      ALTER TABLE "order"
+      ADD CONSTRAINT order_user_id_fkey
+      FOREIGN KEY (user_id) REFERENCES "users" (id);
+   END IF;
+END $$;
+ALTER TABLE "orders"
+DROP CONSTRAINT IF EXISTS order_user_id_fkey;
+
+ALTER TABLE "orders"
+ADD CONSTRAINT order_user_id_fkey
+FOREIGN KEY (user_id) REFERENCES "users" (id);
+
 CREATE TABLE IF NOT EXISTS "users" (
     id          bigserial PRIMARY KEY,
     name        text NOT NULL,

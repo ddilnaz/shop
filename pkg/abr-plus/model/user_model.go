@@ -71,10 +71,10 @@ func (m UserModel) CreateUser(user *User) error {
 func (m UserModel) UpdateUser(user *User) error {
 	// Update a specific menu item in the database.
 	query := `
-	UPDATE users
-	SET name = $1, email = $2, created_at = $3
-	WHERE id = $4
-	RETURNING updated_at`
+		UPDATE users
+		SET name = $1, email = $2, updated_at = NOW()
+		WHERE id = $3
+		RETURNING updated_at`
 
 	args := []interface{}{user.Name, user.Email, user.Id}
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
