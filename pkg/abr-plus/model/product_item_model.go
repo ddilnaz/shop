@@ -29,6 +29,7 @@ type ProductItemModel struct{
 	InfoLog  *log.Logger
 	ErrorLog *log.Logger
 }
+
 func GetProductItems() []ProductItem {
 	return productItems
 }
@@ -60,7 +61,6 @@ func (m ProductItemModel) CreateProductItem(product_item *ProductItem) error {
 	
 		return m.DB.QueryRowContext(ctx, query, args...).Scan(&product_item.UpdatedAt)
 	}
-
 
 	func (m ProductItemModel) Delete(id int) error {
 		query := `

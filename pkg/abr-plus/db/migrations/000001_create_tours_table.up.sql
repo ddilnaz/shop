@@ -1,6 +1,5 @@
 -- db/migrations/{timestamp}_create_tables.up.sql
 -- C:\Users\Lenovo\Desktop\shop\pkg\abr-plus\db\migrations\000001_create_tours_table.up.sql
--- Создание таблицы для продуктов, заказов и пользователей
 CREATE TABLE IF NOT EXISTS product_item (
     id          bigserial PRIMARY KEY,
     title       text NOT NULL,
