@@ -12,29 +12,14 @@ CREATE TABLE IF NOT EXISTS product_item (
 
 CREATE TABLE IF NOT EXISTS "order" (
     id          bigserial PRIMARY KEY,
-    user_id     bigserial REFERENCES "user" (id),
+    user_id     bigserial REFERENCES "users" (id),
     created_at  timestamp(0) with time zone NOT NULL DEFAULT NOW(),
     updated_at  timestamp(0) with time zone NOT NULL DEFAULT NOW(),
     title       text NOT NULL,  
     description text,           
     status      text NOT NULL DEFAULT 'Pending',
-    FOREIGN KEY (user_id) REFERENCES "user" (id)
+    FOREIGN KEY (user_id) REFERENCES "users" (id)
 );
-
-DO $$ 
-BEGIN
-   IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'order_user_id_fkey') THEN
-      ALTER TABLE "order"
-      ADD CONSTRAINT order_user_id_fkey
-      FOREIGN KEY (user_id) REFERENCES "users" (id);
-   END IF;
-END $$;
-ALTER TABLE "orders"
-DROP CONSTRAINT IF EXISTS order_user_id_fkey;
-
-ALTER TABLE "orders"
-ADD CONSTRAINT order_user_id_fkey
-FOREIGN KEY (user_id) REFERENCES "users" (id);
 
 CREATE TABLE IF NOT EXISTS "users" (
     id          bigserial PRIMARY KEY,
