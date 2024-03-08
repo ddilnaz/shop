@@ -1,3 +1,9 @@
+info about me 
+Образовательная программа	Информационные системы
+ID	22B031177
+Студент	Зейнолла Дильназ Бауыржанқызы
+Год обучения	2
+
 Project description:
 Tour_Shop is a Golang-based web application that serves as an online shopping platform. It encompasses various features for managing users, orders, and product items. Key functionalities include:
 
