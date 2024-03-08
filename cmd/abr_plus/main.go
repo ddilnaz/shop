@@ -7,7 +7,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/ddilnaz/shop/pkg/abr-plus/model"
+	"github.com/ddilnaz/shop/pkg/shop_tour/model"
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
 )

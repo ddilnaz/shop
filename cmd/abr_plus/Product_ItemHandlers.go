@@ -5,7 +5,7 @@ import (
 	"github.com/gorilla/mux"
 	"net/http"
 	"log"
-	"github.com/ddilnaz/shop/pkg/abr-plus/model"
+	"github.com/ddilnaz/shop/pkg/shop_tour/model"
 	"strconv"
 	
 )

@@ -10,7 +10,7 @@ import (
 	//"errors"
 	
 	"github.com/gorilla/mux"
-	"github.com/ddilnaz/shop/pkg/abr-plus/model"
+	"github.com/ddilnaz/shop/pkg/shop_tour/model"
 )
 
 func (app *application) respondWithError(w http.ResponseWriter, code int, message string) {
