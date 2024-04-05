@@ -15,7 +15,7 @@ func (app *application) CreateItemHandler(w http.ResponseWriter, r *http.Request
 	var input struct {
 		Title          string `json:"title"`
 		Description    string `json:"description"`
-		Price      int`json:"price"`
+		Price          int`json:"price"`
 	}
 
 	err := app.readJSON(w, r, &input)
@@ -26,8 +26,8 @@ func (app *application) CreateItemHandler(w http.ResponseWriter, r *http.Request
 
 	product_item := &model.ProductItem{
 		Title:           input.Title,
-		Description:    		input.Description,
-		Price: input.Price,
+		Description:     input.Description,
+		Price:			 input.Price,
 	}
 
 	err = app.models.ProductItems.CreateProductItem(product_item)

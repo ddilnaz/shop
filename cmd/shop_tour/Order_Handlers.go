@@ -6,7 +6,6 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-
 	"github.com/ddilnaz/shop/pkg/shop_tour/model"
 	"github.com/gorilla/mux"
 )
@@ -31,10 +30,9 @@ func (app *application) respondWithJSON(w http.ResponseWriter, code int, payload
 
 func (app *application) createOrderHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
-		Title       string `json:"title"`
-		Description string `json:"description"`
-		Status      string `json:"status"`
 		UserID      int    `json:"user_id"`
+		ItemID      int    `json:"item_id"` 
+		Status      string `json:"status"`
 	}
 
 	err := app.readJSON(w, r, &input)
@@ -45,10 +43,9 @@ func (app *application) createOrderHandler(w http.ResponseWriter, r *http.Reques
 	}
 
 	order := &model.Order{
-		Title:       input.Title,
-		Description: input.Description,
-		Status:      input.Status,
 		UserID:      input.UserID,
+		ItemID:      input.ItemID,
+		Status:      input.Status,
 	}
 
 	if order.Status == "" {
@@ -102,8 +99,7 @@ func (app *application) updateOrderHandler(w http.ResponseWriter, r *http.Reques
 	}
 
 	var input struct {
-		Title       *string `json:"title"`
-		Description *string `json:"description"`
+		Status      *string `json:"status"`
 	}
 
 	err = app.readJSON(w, r, &input)
@@ -112,12 +108,8 @@ func (app *application) updateOrderHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	if input.Title != nil {
-		order.Title = *input.Title
-	}
-
-	if input.Description != nil {
-		order.Description = *input.Description
+	if input.Status != nil {
+		order.Status = *input.Status
 	}
 
 	err = app.models.Orders.UpdateOrder(order)
