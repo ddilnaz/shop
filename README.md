@@ -59,36 +59,37 @@ The project follows the Standard Project Layout for Golang applications. Key dir
 **Database Structure:**
 - User Model:
   ```
-  Table users {
-    id bigserial [primary key]
-    created_at timestamp
-    updated_at timestamp
-    name text
-    email text
-  }
+   TABLE  users (
+    id          bigserial PRIMARY KEY,
+    name        text NOT NULL,
+    email       text NOT NULL,
+    created_at  timestamp(0) with time zone NOT NULL DEFAULT NOW(),
+    updated_at  timestamp(0) with time zone NOT NULL DEFAULT NOW()
+);
   ```
 
 - Order Model:
   ```
   Table orders {
-    id bigserial [primary key]
-    created_at timestamp
-    updated_at timestamp
-    title text
-    description text
-    status text
+      order_id    bigserial PRIMARY KEY,
+    item_id     bigserial REFERENCES product_item (id),
+    user_id     bigserial REFERENCES users (id),
+    created_at  timestamp(0) with time zone NOT NULL DEFAULT NOW(),
+    updated_at  timestamp(0) with time zone NOT NULL DEFAULT NOW(),
+    status      text NOT NULL DEFAULT 'Pending'
+);
   }
   ```
 
 - Product Item Model:
   ```
   Table product_item {
-    id bigserial [primary key]
-    created_at timestamp
-    updated_at timestamp
-    title text
-    description text
-    price int
+    id          bigserial PRIMARY KEY,
+    title       text NOT NULL,
+    description text,
+    price       int NOT NULL,
+    created_at  timestamp(0) with time zone NOT NULL DEFAULT NOW(),
+    updated_at  timestamp(0) with time zone NOT NULL DEFAULT NOW()
   }
   ```
 
