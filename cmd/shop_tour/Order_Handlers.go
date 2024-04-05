@@ -7,10 +7,8 @@ import (
 	"net/http"
 	"strconv"
 
-	//"errors"
-	
-	"github.com/gorilla/mux"
 	"github.com/ddilnaz/shop/pkg/shop_tour/model"
+	"github.com/gorilla/mux"
 )
 
 func (app *application) respondWithError(w http.ResponseWriter, code int, message string) {
@@ -36,54 +34,60 @@ func (app *application) createOrderHandler(w http.ResponseWriter, r *http.Reques
 		Title       string `json:"title"`
 		Description string `json:"description"`
 		Status      string `json:"status"`
+		UserID      int    `json:"user_id"`
 	}
 
 	err := app.readJSON(w, r, &input)
 	if err != nil {
 		log.Print("zdes")
-		app.respondWithError(w, http.StatusBadRequest, "Invalid request payload")
+		app.respondWithError(w, http.StatusBadRequest, "Неверный формат запроса")
 		return
 	}
+
 	order := &model.Order{
 		Title:       input.Title,
 		Description: input.Description,
 		Status:      input.Status,
+		UserID:      input.UserID,
 	}
+
 	if order.Status == "" {
-		order.Status = "Pending"  
+		order.Status = "Pending"
 	}
-	err = app.models.Orders.CreateOrder(order)
+
+	err = app.models.Orders.CreateOrder(order, input.UserID)
 	if err != nil {
-		log.Printf("Error creating order: %s\n", err)
-		app.respondWithError(w, http.StatusInternalServerError, "500 Internal Server Error")
+		log.Printf("Ошибка создания заказа: %s\n", err)
+		app.respondWithError(w, http.StatusInternalServerError, "Внутренняя ошибка сервера")
 		return
 	}
-	
+
 	app.respondWithJSON(w, http.StatusCreated, order)
 }
 
 func (app *application) getOrderHandler(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	param := vars["orderId"]
+    vars := mux.Vars(r)
+    param := vars["id"] 
 
-	id, err := strconv.Atoi(param)
-	if err != nil || id < 1 {
-		app.respondWithError(w, http.StatusBadRequest, "Invalid order ID")
-		return
-	}
+    id, err := strconv.Atoi(param)
+    if err != nil || id < 1 {
+        app.respondWithError(w, http.StatusBadRequest, "Invalid order ID")
+        return
+    }
 
-	menu, err := app.models.Orders.GetOrderById(id)
-	if err != nil {
-		app.respondWithError(w, http.StatusNotFound, "404 Not Found")
-		return
-	}
+    menu, err := app.models.Orders.GetOrderById(id)
+    if err != nil {
+        app.respondWithError(w, http.StatusNotFound, "404 Not Found")
+        return
+    }
 
-	app.respondWithJSON(w, http.StatusOK, menu)
+    app.respondWithJSON(w, http.StatusOK, menu)
 }
+
 
 func (app *application) updateOrderHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	param := vars["orderId"]
+	param := vars["id"]
 
 	id, err := strconv.Atoi(param)
 	if err != nil || id < 1 {
@@ -127,7 +131,7 @@ func (app *application) updateOrderHandler(w http.ResponseWriter, r *http.Reques
 
 func (app *application) deleteOrderHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	param := vars["orderId"]
+	param := vars["id"]
 
 	id, err := strconv.Atoi(param)
 	if err != nil || id < 1 {

@@ -59,7 +59,10 @@ func (app *application) run() {
 	v1.HandleFunc("/user",app.CreateUserHandler).Methods("POST")
 
 	v1.HandleFunc("/items",app.CreateItemHandler).Methods("POST")
-	v1.HandleFunc("/items/{id:[0-9]+}",app.deleteItemHandler).Methods("DELETE")
+	v1.HandleFunc("/items/{items_id:[0-9]+}",app.deleteItemHandler).Methods("DELETE")
+	v1.HandleFunc("/items/{items_id:[0-9]+}" , app.getItemHandler).Methods("GET")
+	v1.HandleFunc("/items/{items_id:[0-9]+}", app.updateItemHandler).Methods("PUT")
+
 
 	v1.HandleFunc("/orders", app.createOrderHandler).Methods("POST")
 	v1.HandleFunc("/orders/{id:[0-9]+}", app.updateOrderHandler).Methods("PUT")

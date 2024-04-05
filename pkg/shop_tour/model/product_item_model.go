@@ -16,13 +16,13 @@ type ProductItem struct {
 	UpdatedAt      string `json:"updatedAt"`
 	CreatedAt string `json:"createdAt"`
 }
-var productItems = []ProductItem{
-	{Id: 1, Title: "Eiffel Tower Tour", Description: "Guided tour of the iconic landmark", Price: 2000},
-	{Id: 2, Title: "Island Retreat Package", Description: "All-inclusive resort stay", Price: 1500},
-	{Id: 3, Title: "Historical Sites Pass", Description: "Access to various historical sites", Price: 1800},
-	{Id: 4, Title: "Mountain Trekking Adventure", Description: "Thrilling trek in the mountains", Price: 3000},
-	{Id: 5, Title: "City Sightseeing Tour", Description: "Explore the city's landmarks", Price: 2100},
-}
+// var productItems = []ProductItem{
+// 	{Id: 1, Title: "Eiffel Tower Tour", Description: "Guided tour of the iconic landmark", Price: 2000},
+// 	{Id: 2, Title: "Island Retreat Package", Description: "All-inclusive resort stay", Price: 1500},
+// 	{Id: 3, Title: "Historical Sites Pass", Description: "Access to various historical sites", Price: 1800},
+// 	{Id: 4, Title: "Mountain Trekking Adventure", Description: "Thrilling trek in the mountains", Price: 3000},
+// 	{Id: 5, Title: "City Sightseeing Tour", Description: "Explore the city's landmarks", Price: 2100},
+// }
 
 type ProductItemModel struct{
 	DB       *sql.DB
@@ -30,8 +30,23 @@ type ProductItemModel struct{
 	ErrorLog *log.Logger
 }
 
-func GetProductItems() []ProductItem {
-	return productItems
+func (m ProductItemModel) GetItemById(id int) (*ProductItem, error) {
+	// Retrieve a specific order item based on its ID.
+	query := `
+		SELECT id, created_at, updated_at, title, description, price 
+		FROM product_item
+		WHERE id = $1
+		`
+	var items ProductItem
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	row := m.DB.QueryRowContext(ctx, query, id)
+	err := row.Scan(&items.Id, &items.CreatedAt, &items.UpdatedAt, &items.Title, &items.Description, &items.Price)
+	if err != nil {
+		return nil, err
+	}
+	return &items, nil
 }
 
 func (m ProductItemModel) CreateProductItem(product_item *ProductItem) error {
@@ -55,14 +70,14 @@ func (m ProductItemModel) CreateProductItem(product_item *ProductItem) error {
 			WHERE id = $4
 			RETURNING updated_at
 			`
-		args := []interface{}{product_item.Title, product_item.Description, product_item.Price}
+		args := []interface{}{product_item.Title, product_item.Description, product_item.Price,product_item.Id}
 		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 		defer cancel()
 	
 		return m.DB.QueryRowContext(ctx, query, args...).Scan(&product_item.UpdatedAt)
 	}
 
-	func (m ProductItemModel) Delete(id int) error {
+	func (m ProductItemModel) DeleteById(id int) error {
 		query := `
 			DELETE FROM product_item
 			WHERE id = $1
