@@ -1,9 +1,12 @@
 CREATE TABLE IF NOT EXISTS users (
     id          bigserial PRIMARY KEY,
     name        text NOT NULL,
+    password_hash BYTEA                       NOT NULL,
+    activated     BOOL                        NOT NULL,
     email       text NOT NULL,
     created_at  timestamp(0) with time zone NOT NULL DEFAULT NOW(),
-    updated_at  timestamp(0) with time zone NOT NULL DEFAULT NOW()
+    updated_at  timestamp(0) with time zone NOT NULL DEFAULT NOW(),
+    version       INTEGER                     NOT NULL DEFAULT 1
 );
 CREATE TABLE IF NOT EXISTS product_item (
     id          bigserial PRIMARY KEY,

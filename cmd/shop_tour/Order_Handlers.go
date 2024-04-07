@@ -139,12 +139,3 @@ func (app *application) deleteOrderHandler(w http.ResponseWriter, r *http.Reques
 
 	app.respondWithJSON(w, http.StatusOK, map[string]string{"result": "success"})
 }
-func (app *application) readJSON(w http.ResponseWriter, r *http.Request, data interface{}) error {
-	decoder := json.NewDecoder(r.Body)
-	err := decoder.Decode(data)
-	if err != nil {
-		app.respondWithError(w, http.StatusBadRequest, "Invalid JSON payload")
-		return err
-	}
-	return nil
-}
